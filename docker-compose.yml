@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  cart-1:
+    build: ./cart
+    ports:
+      - '4001:4001'
+    environment:
+      - PORT=4001
+      - REDIS_HOST=storage
+      - REDIS_PORT=6379
+    depends_on:
+      - storage
+  storage:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - storage:/data
+volumes:
+  storage:
+    driver: local
