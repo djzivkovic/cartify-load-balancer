@@ -10,6 +10,10 @@ services:
       - REDIS_PORT=6379
     depends_on:
       - storage
+  load-balancer:
+    build: ./load-balancer
+    ports:
+      - '3000:3000'
   storage:
     image: redis:6.2-alpine
     restart: always
