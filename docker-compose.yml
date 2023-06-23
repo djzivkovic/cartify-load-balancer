@@ -10,10 +10,34 @@ services:
       - REDIS_PORT=6379
     depends_on:
       - storage
+  cart-2:
+    build: ./cart
+    ports:
+      - '4002:4002'
+    environment:
+      - PORT=4002
+      - REDIS_HOST=storage
+      - REDIS_PORT=6379
+    depends_on:
+      - storage
+  cart-3:
+    build: ./cart
+    ports:
+      - '4003:4003'
+    environment:
+      - PORT=4003
+      - REDIS_HOST=storage
+      - REDIS_PORT=6379
+    depends_on:
+      - storage
   load-balancer:
     build: ./load-balancer
     ports:
       - '3000:3000'
+    environment:
+      - PORT=3000
+      - SERVICE_URLS=cart-1:4001,cart-2:4002,cart-3:4003
+      - INITIAL_WEIGHTS=1,1,1
   storage:
     image: redis:6.2-alpine
     restart: always

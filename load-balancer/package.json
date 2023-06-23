@@ -15,5 +15,6 @@
   "bugs": {
     "url": "https://github.com/djzivkovic/cartify-load-balancer/issues"
   },
-  "homepage": "https://github.com/djzivkovic/cartify-load-balancer#readme"
+  "homepage": "https://github.com/djzivkovic/cartify-load-balancer#readme",
+  "type": "module"
 }
