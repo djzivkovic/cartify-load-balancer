@@ -16,5 +16,8 @@
     "url": "https://github.com/djzivkovic/cartify-load-balancer/issues"
   },
   "homepage": "https://github.com/djzivkovic/cartify-load-balancer#readme",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@noble/curves": "^1.1.0"
+  }
 }

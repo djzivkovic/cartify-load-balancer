@@ -1,6 +1,7 @@
 import * as net from "net";
 import * as parser from "./parser/http-parser.js";
 import * as balancer from "./balancing/balancer.js";
+import * as crypto from "./crypto/signature.js";
 
 const port = process.env.PORT || 3000;
 
@@ -10,9 +11,11 @@ server.on("connection", (socket) => {
     let requestString = "";
     socket.on("data", (data) => {
         requestString += data.toString();
-        if (parser.isMessageComplete(requestString)) { // Check if the request is complete      
+        if (parser.isMessageComplete(requestString)) { // Check if the request is complete  
+            const sig = crypto.signMessage(requestString); // Sign message
+            requestString = parser.addSignatureToRequest(requestString, sig); // Add signature header
             const serviceInfo = balancer.getService(); // Choose which Cart service to use
-            console.log("Using cart service:", serviceInfo);
+            console.log("Using cart service:", serviceInfo.hostname);
             const cartService = net.createConnection(serviceInfo.port, serviceInfo.hostname);
 
             cartService.write(requestString, (err) => { // Write request to Cart service
