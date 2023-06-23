@@ -36,8 +36,7 @@ services:
       - '3000:3000'
     environment:
       - PORT=3000
-      - SERVICE_URLS=cart-1:4001,cart-2:4002,cart-3:4003
-      - INITIAL_WEIGHTS=1,1,1
+      - SERVICES=cart-1:4001:15,cart-2:4002:10,cart-3:4003:5
   storage:
     image: redis:6.2-alpine
     restart: always
