@@ -8,28 +8,30 @@ const port = process.env.PORT || 3000;
 const server = net.createServer();
 
 server.on("connection", (socket) => {
-    let requestString = "";
+    let requestBuffer = Buffer.alloc(0);
     socket.on("data", (data) => {
-        requestString += data.toString();
-        if (parser.isMessageComplete(requestString)) { // Check if the request is complete
-            const headers = parser.getHeaders(requestString);
-            headers.shift();
+        requestBuffer = Buffer.concat([requestBuffer, data]);
+        if (parser.isMessageComplete(requestBuffer)) { // Check if the request is complete
+
+            const headers = parser.getHeaders(requestBuffer.toString());
+            headers.shift(); // Remove first line (Status line)
             const sig = crypto.signMessage(headers.join("\r\n")); // Sign message
-            requestString = parser.addSignatureToRequest(requestString, sig); // Add signature header
+            requestBuffer = parser.addSignatureToRequest(requestBuffer, sig); // Add signature header
+
             const serviceInfo = balancer.getService(); // Choose which Cart service to use
             console.log("Using cart service:", serviceInfo.hostname);
             const cartService = net.createConnection(serviceInfo.port, serviceInfo.hostname);
 
-            cartService.write(requestString, (err) => { // Write request to Cart service
+            cartService.write(requestBuffer, (err) => { // Write request to Cart service
                 if(err) console.log("Error while writing request:", err);
-                requestString = "";
+                requestBuffer = Buffer.alloc(0);
             });
 
-            let responseString = "";
+            let responseBuffer = Buffer.alloc(0);
             cartService.on("data", (data) => { // Received response from Cart service
-                responseString += data.toString();
-                if (parser.isMessageComplete(responseString)) { // Check if the response is complete
-                    socket.write(responseString, (err) => { // Write the response to client
+                responseBuffer = Buffer.concat([responseBuffer, data]);
+                if (parser.isMessageComplete(responseBuffer)) { // Check if the response is complete
+                    socket.write(responseBuffer, (err) => { // Write the response to client
                         if(err) console.log("Error while writing response:", err);
                         cartService.end();
                     });

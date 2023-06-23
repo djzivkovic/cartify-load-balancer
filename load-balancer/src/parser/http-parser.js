@@ -21,15 +21,20 @@ function getContentLength(headerArray) {
 export function isMessageComplete(data) { // Returns true if HTTP message is complete
     const endOfHeaders = data.indexOf("\r\n\r\n");
     if(endOfHeaders < 0) return false;
-    const requestContentLength = getContentLength(getHeaders(data));
-    return requestContentLength == 0 || data.length - endOfHeaders - 4 == requestContentLength; // Subtract 4 for \r\n\r\n
+    const requestContentLength = getContentLength(getHeaders(data.toString()));
+    return requestContentLength == 0 || data.byteLength - endOfHeaders - 4 == requestContentLength; // Subtract 4 for \r\n\r\n
 }
 
 export function addSignatureToRequest(request, signature) {
-    const requestParts = request.split("\r\n\r\n"); // Split request into headers and body
-    const headerArray = getHeaders(request);
+    const splitIndex = request.indexOf("\r\n\r\n");
+    const headerArray = getHeaders(request.toString());
     const requestContentLength = getContentLength(headerArray);
     headerArray.push("X-Signature: " + signature);
-    return headerArray.join("\r\n") + "\r\n\r\n" + (requestContentLength > 0 ? requestParts[1]:"");
+    let returnBytes = Buffer.from(headerArray.join("\r\n") + "\r\n\r\n"); // Reconstruct buffer from header strings
+    if(requestContentLength > 0) { // Add body if present
+        const body = request.slice(splitIndex + 4);
+        returnBytes = Buffer.concat([returnBytes, Buffer.from(body)]);
+    }
+    return returnBytes;
 }
 
