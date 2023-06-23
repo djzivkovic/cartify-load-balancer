@@ -11,8 +11,10 @@ server.on("connection", (socket) => {
     let requestString = "";
     socket.on("data", (data) => {
         requestString += data.toString();
-        if (parser.isMessageComplete(requestString)) { // Check if the request is complete  
-            const sig = crypto.signMessage(requestString); // Sign message
+        if (parser.isMessageComplete(requestString)) { // Check if the request is complete
+            const headers = parser.getHeaders(requestString);
+            headers.shift();
+            const sig = crypto.signMessage(headers.join("\r\n")); // Sign message
             requestString = parser.addSignatureToRequest(requestString, sig); // Add signature header
             const serviceInfo = balancer.getService(); // Choose which Cart service to use
             console.log("Using cart service:", serviceInfo.hostname);

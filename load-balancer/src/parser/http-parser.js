@@ -1,6 +1,6 @@
-function getHeaders(request) { // Return header array
+export function getHeaders(request) { // Return header array
     const requestParts = request.split("\r\n\r\n"); // Split request into headers and body
-    let headers = requestParts[0];
+    const headers = requestParts[0];
     return headers.split("\r\n");
 }
 
