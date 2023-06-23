@@ -1,6 +1,4 @@
-import * as crypto from "../crypto/signature.js";
-
-export const verifySignature = (req, res, next) => {
+export const verifySignature = (crypto) => (req, res, next) => {
     const headers = req.rawHeaders;
     let msg = "";
     let i = 0;
