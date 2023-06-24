@@ -1,6 +1,7 @@
 import express from "express";
 import * as cart from "../controllers/cartController.js";
 import * as crypto from "../crypto/signature.js";
+import redis from "../storage/redis.js";
 import { validateUserId, validateProductId, validateQuantity } from "../middleware/validationMiddleware.js";
 import { verifySignature } from "../middleware/authMiddleware.js";
 
@@ -9,7 +10,11 @@ const router = express.Router();
 // Get all products from user's cart
 router.get("/:userId", verifySignature(crypto), validateUserId, async (req, res) => {
     const userId = req.params["userId"];
-    const userCart = await cart.getUserCart(userId);
+    const userCart = await cart.getUserCart(redis, userId);
+    if(Object.keys(userCart).length == 0) {
+        res.status(404);
+        return res.json({message: "User cart doesn't exist."});
+    }
     return res.json({message: "Sucessfully retrieved cart data.", data: userCart});
 });
 
@@ -18,7 +23,7 @@ router.post("/:userId", verifySignature(crypto), validateUserId, validateProduct
     const userId = req.params["userId"];
     const productId = req.body["productId"];
 
-    await cart.addProduct(userId, productId);
+    await cart.addProduct(redis, userId, productId);
     return res.json({message: "Successfully added product."});
 });
 
@@ -27,7 +32,7 @@ router.delete("/:userId/product/:productId", verifySignature(crypto), validateUs
     const userId = req.params["userId"];
     const productId = req.params["productId"];
 
-    const result = await cart.removeProduct(userId, productId);
+    const result = await cart.removeProduct(redis, userId, productId);
     if(result) {
         return res.json({message: "Successfully deleted product."});
     }
@@ -43,7 +48,7 @@ router.patch("/:userId/product/:productId", verifySignature(crypto), validateUse
         const productId = req.params["productId"];
         const quantity = req.body["quantity"];
 
-        const result = cart.updateQuantity(userId, productId, quantity);
+        const result = cart.updateQuantity(redis, userId, productId, quantity);
         if(result) {
             return res.json({message: "Successfully updated product quantity."});
         }
