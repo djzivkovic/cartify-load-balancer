@@ -1,4 +1,4 @@
-# Load Balancer
+# Cartify Load Balancer
 
 This project implements a load balancer for a cart service. The load balancer distributes incoming requests among multiple instances of the cart service using the Weighted Round Robin algorithm.
 
@@ -8,7 +8,7 @@ The project consists of two main components: the cart service and the load balan
 
 The cart service handles requests related to managing user shopping carts.
 
-#### API endpoints:
+#### API endpoints
 
 `GET /cart/:userId`: Retrieves all products from the user's cart. No parameters.
    
@@ -18,6 +18,7 @@ The cart service handles requests related to managing user shopping carts.
    
 `PATCH /cart/:userId/product/:productId`: Updates the quantity of a product in the user's cart. Required parameter in body: `quantity`.
 
+#### Structure
 The relevant files for the cart service are located in the `cart/src` directory:
 
 - `app.js`: Sets up the Express.js server and defines the routes for the cart service.
@@ -32,6 +33,7 @@ The relevant files for the cart service are located in the `cart/src` directory:
 
 The load balancer is responsible for distributing incoming requests among multiple instances of the cart service. It uses the Weighted Round Robin algorithm to select a cart service instance based on the assigned weights.
 
+#### Structure
 The relevant files for the load balancer are located in the `load-balancer/src` directory:
 
 - `app.js`: Sets up a TCP server to receive requests and forwards them to the appropriate cart service instance.

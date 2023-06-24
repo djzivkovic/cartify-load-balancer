@@ -4,7 +4,7 @@ export function getHeaders(request) { // Return header array
     return headers.split("\r\n");
 }
 
-function getContentLength(headerArray) {
+export function getContentLength(headerArray) {
     let requestContentLength = 0;
     for(let i = 1;i<headerArray.length;i++) {
         let headerParts = headerArray[i].split(":");
