@@ -3,6 +3,8 @@ import * as parser from "./parser/http-parser.js";
 import * as balancer from "./balancing/balancer.js";
 import * as crypto from "./crypto/signature.js";
 
+balancer.initializeBalancer();
+
 const port = process.env.PORT || 3000;
 
 const server = net.createServer();
