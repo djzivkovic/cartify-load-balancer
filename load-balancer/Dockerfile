@@ -6,6 +6,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY . .
+COPY ./src ./src
 
 CMD [ "node", "src/app.js" ]
