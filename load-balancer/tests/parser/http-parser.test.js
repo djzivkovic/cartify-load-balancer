@@ -4,6 +4,7 @@ import {
     getContentLength,
     isMessageComplete,
     addSignatureToRequest,
+    isMessageValidHTTP
 } from "../../src/parser/http-parser";
   
 describe("HTTP Parser", () => {
@@ -107,6 +108,47 @@ describe("HTTP Parser", () => {
             const modifiedRequest = addSignatureToRequest(requestWithBody, signature);
   
             expect(modifiedRequest.toString()).toBe(expectedRequest);
+        });
+    });
+
+    describe("isMessageValidHTTP", () => {
+        it("should return true for valid HTTP methods", () => {
+            expect(isMessageValidHTTP(Buffer.from("GET /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("POST /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("PUT /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("DELETE /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("CONNECT /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("HEAD /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("OPTIONS /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("TRACE /cart/1 HTTP/1.1\r\n"))).toBe(true);
+            expect(isMessageValidHTTP(Buffer.from("PATCH /cart/1 HTTP/1.1\r\n"))).toBe(true);
+        });
+        
+        it("should return false for invalid HTTP methods", () => {
+            expect(isMessageValidHTTP(Buffer.from("INVALID /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("INVALIDMETHOD /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("PUTT /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("DELET /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("CONNNECT /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("HEAD1 /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("OPTION /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("TRACEE /cart/1 HTTP/1.1\r\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("PATCHH /cart/1 HTTP/1.1\r\n"))).toBe(false);
+        });
+        
+        it("should return false if first line separator not found", () => {
+            expect(isMessageValidHTTP(Buffer.from("GET /cart/1 HTTP/1.1"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("GET /cart/1 HTTP/1.1\n"))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from("GET /cart/1 HTTP/1.1\n\n"))).toBe(false);
+        });
+        
+        it("should return false if data is empty", () => {
+            expect(isMessageValidHTTP(Buffer.from(""))).toBe(false);
+        });
+        
+        it("should return false if data is not a string", () => {
+            expect(isMessageValidHTTP(Buffer.from([123]))).toBe(false);
+            expect(isMessageValidHTTP(Buffer.from([]))).toBe(false);
         });
     });
 });

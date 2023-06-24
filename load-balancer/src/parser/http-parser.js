@@ -38,3 +38,25 @@ export function addSignatureToRequest(request, signature) {
     return returnBytes;
 }
 
+export function isMessageValidHTTP(data) {
+    const stringData = data.toString();
+    const firstLineEnd = stringData.indexOf("\r\n");
+    if (firstLineEnd !== -1) {
+        const firstLine = stringData.slice(0, firstLineEnd);
+        if (firstLine.startsWith("CONNECT ") ||
+            firstLine.startsWith("GET ") ||
+            firstLine.startsWith("POST ") ||
+            firstLine.startsWith("DELETE ") ||
+            firstLine.startsWith("PUT ") ||
+            firstLine.startsWith("PATCH ") ||
+            firstLine.startsWith("HEAD ") ||
+            firstLine.startsWith("OPTIONS ") ||
+            firstLine.startsWith("TRACE ")
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}

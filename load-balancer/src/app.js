@@ -13,8 +13,11 @@ server.on("connection", (socket) => {
     let requestBuffer = Buffer.alloc(0);
     socket.on("data", (data) => {
         requestBuffer = Buffer.concat([requestBuffer, data]);
+        if (!parser.isMessageValidHTTP(requestBuffer)) { // Close connection if message is not valid HTTP
+            socket.end();
+            return;
+        }
         if (parser.isMessageComplete(requestBuffer)) { // Check if the request is complete
-
             const headers = parser.getHeaders(requestBuffer.toString());
             headers.shift(); // Remove first line (Status line)
             const sig = crypto.signMessage(headers.join("\r\n")); // Sign message
