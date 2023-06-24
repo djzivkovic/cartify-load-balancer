@@ -10,13 +10,13 @@ The cart service handles requests related to managing user shopping carts.
 
 #### API endpoints
 
-`GET /cart/:userId`: Retrieves all products from the user's cart. No parameters.
+`GET /carts/<userId>`: Retrieves all products from the user's cart. No body parameters.
    
-`POST /cart/:userId`: Adds a product to the user's cart. Required parameter in body: `productId`.
+`POST /carts/<userId>/products`: Adds a product to the user's cart. Required parameter in body: `productId`.
 
-`DELETE /cart/:userId/product/:productId`: Deletes a product from the user's cart. No parameters.
+`DELETE /carts/<userId>/products/<productId>`: Deletes a product from the user's cart. No body parameters.
    
-`PATCH /cart/:userId/product/:productId`: Updates the quantity of a product in the user's cart. Required parameter in body: `quantity`.
+`PATCH /carts/<userId>/products/<productId>`: Updates the quantity of a product in the user's cart. Required body parameter: `quantity`.
 
 #### Structure
 The relevant files for the cart service are located in the `cart/src` directory:

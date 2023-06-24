@@ -19,7 +19,7 @@ router.get("/:userId", verifySignature(crypto), validateUserId, async (req, res)
 });
 
 // Add a product to user's cart
-router.post("/:userId", verifySignature(crypto), validateUserId, validateProductId(true), async (req, res) => {
+router.post("/:userId/products", verifySignature(crypto), validateUserId, validateProductId(true), async (req, res) => {
     const userId = req.params["userId"];
     const productId = req.body["productId"];
 
@@ -28,7 +28,7 @@ router.post("/:userId", verifySignature(crypto), validateUserId, validateProduct
 });
 
 // Delete a product from user's cart
-router.delete("/:userId/product/:productId", verifySignature(crypto), validateUserId, validateProductId(false), async (req, res) => {
+router.delete("/:userId/products/:productId", verifySignature(crypto), validateUserId, validateProductId(false), async (req, res) => {
     const userId = req.params["userId"];
     const productId = req.params["productId"];
 
@@ -42,7 +42,7 @@ router.delete("/:userId/product/:productId", verifySignature(crypto), validateUs
 });
 
 // Update a product's quantity in user's cart
-router.patch("/:userId/product/:productId", verifySignature(crypto), validateUserId, 
+router.patch("/:userId/products/:productId", verifySignature(crypto), validateUserId, 
     validateProductId(false), validateQuantity, async (req, res) => {
         const userId = req.params["userId"];
         const productId = req.params["productId"];
