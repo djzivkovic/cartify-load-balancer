@@ -19,5 +19,8 @@
   "type": "module",
   "dependencies": {
     "@noble/curves": "^1.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0"
   }
 }

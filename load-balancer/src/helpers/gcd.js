@@ -6,6 +6,7 @@ export function GCD(arr) // Return GCD of N numbers
             return b;
         return gcd(b % a, a);
     }
+    if(arr.length == 0) return NaN;
     let result = arr[0];
     for (let i = 1; i < arr.length; i++)
     {
