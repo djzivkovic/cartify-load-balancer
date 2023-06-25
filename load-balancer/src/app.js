@@ -14,44 +14,59 @@ server.on("connection", (socket) => {
     socket.on("data", (data) => {
         requestBuffer = Buffer.concat([requestBuffer, data]);
         if (!parser.isMessageValidHTTP(requestBuffer)) { // Close connection if message is not valid HTTP
-            socket.end();
+            socket.write("HTTP/1.1 400 Bad Request\r\n\r\n", () => {
+                socket.end();
+            });
             return;
         }
         if (parser.isMessageComplete(requestBuffer)) { // Check if the request is complete
-            const headers = parser.getHeaders(requestBuffer.toString());
-            headers.shift(); // Remove first line (Status line)
-            const sig = crypto.signMessage(headers.join("\r\n")); // Sign message
-            requestBuffer = parser.addSignatureToRequest(requestBuffer, sig); // Add signature header
-
-            const serviceInfo = balancer.getService(); // Choose which Cart service to use
-            console.log("Using cart service:", serviceInfo.hostname);
-            const cartService = net.createConnection(serviceInfo.port, serviceInfo.hostname);
-
-            cartService.write(requestBuffer, (err) => { // Write request to Cart service
-                if(err) console.log("Error while writing request:", err);
-                requestBuffer = Buffer.alloc(0);
-            });
-
             let responseBuffer = Buffer.alloc(0);
-            cartService.on("data", (data) => { // Received response from Cart service
-                responseBuffer = Buffer.concat([responseBuffer, data]);
-                if (parser.isMessageComplete(responseBuffer)) { // Check if the response is complete
-                    socket.write(responseBuffer, (err) => { // Write the response to client
-                        if(err) console.log("Error while writing response:", err);
+            
+            // Choose which Cart service to use
+            const serviceInfo = balancer.getService(); 
+            // Logging chosen service to make sure we are always choosing the correct service
+            console.log("Using cart service:", serviceInfo.hostname); 
+
+            const cartService = net.createConnection(serviceInfo.port, serviceInfo.hostname, () => {
+                // On cart service connected
+                cartService.on("data", (data) => { // Setup response listener from Cart service
+                    responseBuffer = Buffer.concat([responseBuffer, data]);
+                    if (parser.isMessageComplete(responseBuffer)) { // Check if the response is complete
+                        socket.write(responseBuffer, (error) => { // Write the response to client
+                            if(error) console.log("Error while writing response:", error.code);
+                            cartService.end();
+                        });
+                    } 
+                });
+    
+                // Inject signature header
+                const headers = parser.getHeaders(requestBuffer.toString());
+                headers.shift(); // Remove first line (Status line)
+                const sig = crypto.signMessage(headers.join("\r\n")); // Sign message
+                requestBuffer = parser.addSignatureToRequest(requestBuffer, sig); // Add signature to header
+    
+                // Write request to Cart service
+                cartService.write(requestBuffer, (error) => { 
+                    if(error) {
+                        console.log("Error while writing request:", error.code);
                         cartService.end();
-                    });
-                } 
+                        socket.end();
+                    }
+                    requestBuffer = Buffer.alloc(0); // Reset request buffer
+                });
             });
 
-            cartService.on("end", hadError => {
-                if(hadError)
-                    console.log("Error when closing the cart service connection.");
+            cartService.on("error", error => {
+                console.log("Error on the cart service connection.", error.code);
+                cartService.end();
+                socket.write("HTTP/1.1 503 Service Unavailable\r\n\r\n", () => {
+                    socket.end();
+                });
             });
         }
     });
-    socket.on("end", hadError => {
-        if(hadError)
-            console.log("Error when closing the connection.");
+    socket.on("error", error => {
+        console.log("Error on client connection.", error.code);
     });
 });
 
