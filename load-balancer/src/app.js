@@ -49,8 +49,7 @@ server.on("connection", (socket) => {
                 cartService.write(requestBuffer, (error) => { 
                     if(error) {
                         console.log("Error while writing request:", error.code);
-                        cartService.end();
-                        socket.end();
+                        // No need to close connections here because error event will be called
                     }
                     requestBuffer = Buffer.alloc(0); // Reset request buffer
                 });
@@ -58,7 +57,6 @@ server.on("connection", (socket) => {
 
             cartService.on("error", error => {
                 console.log("Error on the cart service connection.", error.code);
-                cartService.end();
                 socket.write("HTTP/1.1 503 Service Unavailable\r\n\r\n", () => {
                     socket.end();
                 });
