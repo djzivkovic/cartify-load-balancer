@@ -10,13 +10,13 @@ The cart service handles requests related to managing user shopping carts.
 
 #### API endpoints
 
-`GET /carts/<userId>`: Retrieves all products from the user's cart. No body parameters.
+`GET /carts/<userId>`: Retrieves all products from the user's cart.
    
-`POST /carts/<userId>/products`: Adds a product to the user's cart. Required parameter in body: `productId`.
+`POST /carts/<userId>/products`: Adds a product to the user's cart. Body parameter: `productId`.
 
-`DELETE /carts/<userId>/products/<productId>`: Deletes a product from the user's cart. No body parameters.
+`DELETE /carts/<userId>/products/<productId>`: Deletes a product from the user's cart.
    
-`PATCH /carts/<userId>/products/<productId>`: Updates the quantity of a product in the user's cart. Required body parameter: `quantity`.
+`PATCH /carts/<userId>/products/<productId>`: Updates the quantity of a product in the user's cart. Body parameter: `quantity`.
 
 #### Structure
 The relevant files for the cart service are located in the `cart/src` directory:
@@ -49,15 +49,15 @@ To run the project using Docker, follow these steps:
 ### 1. Setting up the necessary variables in `docker-compose.yml`:
 
 #### For each cart service, you need to set:
- - `PORT`: Service port
- - `REDIS_HOST`: Redis hostname
- - `REDIS_PORT`: Redis port
- - `LB_PUBLIC_KEY`: Load balancer public key used to verify incoming requests
+ - `PORT`: Service port.
+ - `REDIS_HOST`: Redis hostname.
+ - `REDIS_PORT`: Redis port.
+ - `LB_PUBLIC_KEY`: Load balancer public key used to verify incoming requests.
 
 #### For the load balancer, you need to set:
- - `PORT`: Load balancer port
- - `SERVICES`: A comma-separated list of cart service instances with their host, port, and weight (e.g. `SERVICES=host1:port1:weight1,host2:port2:weight2`)
- - `PRIVATE_KEY`: Private key used for signing requests
+ - `PORT`: Load balancer port.
+ - `SERVICES`: A comma-separated list of cart service instances with their host, port, and weight (e.g. `SERVICES=host1:port1:weight1,host2:port2:weight2`).
+ - `PRIVATE_KEY`: Private key used for signing requests.
 
 You also need to set the exposed ports in all the docker containers by changing their `ports` configuration.
 ### 2. Running the containers:
