@@ -10,7 +10,7 @@ The cart service handles requests related to managing user shopping carts.
 
 #### API endpoints
 
-`GET /carts/<userId>`: Retrieves all products from the user's cart.
+`GET /carts/<userId>/products`: Retrieves all products from the user's cart.
    
 `POST /carts/<userId>/products`: Adds a product to the user's cart. Body parameter: `productId`.
 

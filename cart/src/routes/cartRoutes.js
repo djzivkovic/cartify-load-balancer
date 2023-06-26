@@ -8,7 +8,7 @@ import { verifySignature } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Get all products from user's cart
-router.get("/:userId", verifySignature(crypto), validateUserId, async (req, res) => {
+router.get("/:userId/products", verifySignature(crypto), validateUserId, async (req, res) => {
     const userId = req.params["userId"];
     const userCart = await cart.getUserCart(storage, userId);
     if(Object.keys(userCart).length == 0) {
